@@ -33,6 +33,7 @@ const routes = {
     'POST': createComment
   },
   '/comments/:id': {
+    'PUT': updateComment
   },
   '/comments/:id/upvote': {
   },
@@ -282,6 +283,34 @@ function createComment(url, request) {
     response.status = 201;
   } else {
     response.status = 400;
+  }
+
+  return response;
+}
+
+function updateComment(url, request) {
+
+  const response = {};
+
+  const requestComment = request.body && request.body.comment;
+  const id = Number(url.split('/').filter(segment => segment)[1]);
+
+  if (
+    !requestComment ||
+    !id
+  ) {
+    response.status = 400;
+  } else if (
+    database.comments[id] === undefined
+  ) {
+    response.status = 404;
+  } else if (
+    requestComment.body.length === 0
+  ) {
+    response.status = 200;
+  } else {
+      database.comments[requestComment.id] = requestComment;
+      response.status = 200;
   }
 
   return response;
