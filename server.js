@@ -352,10 +352,6 @@ function deleteComment(url, request) {
 
 function upvoteOrDownVoteComment(url, request) {
 
-  // console.log("url: ", url);
-  // console.log("request: ", request);
-  // console.log(database.comments);
-
   const parts = url.split('/').filter(segment => segment);
   const id = Number(parts[1]);
   const comments = database.comments;
@@ -419,8 +415,6 @@ function upvoteOrDownVoteComment(url, request) {
 
   return response;
 }
-
-// Write all code above this line.
 
 const http = require('http');
 const url = require('url');
@@ -488,6 +482,10 @@ const getRequestRoute = (url) => {
   } else {
     return `/${pathSegments[0]}/:id`;
   }
+}
+
+const loadDatabase = () => {
+  
 }
 
 if (typeof loadDatabase === 'function' && !isTestMode) {
