@@ -1,3 +1,6 @@
+const yaml = require('js-yaml');
+const fs   = require('fs');
+
 // database is let instead of const to allow us to modify it in test.js
 let database = {
   users: {},
@@ -485,13 +488,25 @@ const getRequestRoute = (url) => {
 }
 
 const loadDatabase = () => {
-  
+
+  try {
+
+    const doc = yaml.safeLoad(fs.readFileSync('database.yaml', 'utf8'));
+    
+    return {
+      ...doc.database
+    };
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 if (typeof loadDatabase === 'function' && !isTestMode) {
+
   const savedDatabase = loadDatabase();
+
   if (savedDatabase) {
-    for (key in database) {
+    for (key in savedDatabase) {
       database[key] = savedDatabase[key] || database[key];
     }
   }
