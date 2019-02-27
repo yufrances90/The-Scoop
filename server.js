@@ -37,8 +37,10 @@ const routes = {
     'DELETE': deleteComment
   },
   '/comments/:id/upvote': {
+    'PUT': upvoteOrDownVoteComment
   },
   '/comments/:id/downvote': {
+    'PUT': upvoteOrDownVoteComment
   }
 };
 
@@ -343,6 +345,76 @@ function deleteComment(url, request) {
     const commentIdIndexI = commentIdsI.findIndex(commentId => commentId === id);
 
     commentIdsI.splice(commentIdIndexI, 1);
+  }
+
+  return response;
+}
+
+function upvoteOrDownVoteComment(url, request) {
+
+  // console.log("url: ", url);
+  // console.log("request: ", request);
+  // console.log(database.comments);
+
+  const parts = url.split('/').filter(segment => segment);
+  const id = Number(parts[1]);
+  const comments = database.comments;
+
+  const response = {};
+  
+  if(
+    !id ||
+    !database.comments[id] ||
+    !(
+        request.body && 
+        request.body.username && 
+        database.users[request.body.username]
+      ) 
+    ) {
+    response.status = 400;
+  } else {
+    response.status = 200;
+
+    const operationType = parts[2];
+    const username = request.body.username;
+    const targetComment = comments[id];
+
+    let upvotedBy = targetComment.upvotedBy;
+    let downvotedBy = targetComment.downvotedBy;
+
+    switch(operationType) {
+      case "upvote": 
+
+        if (!upvotedBy.includes(username)) {
+
+          if (downvotedBy.includes(username)) {
+            downvotedBy.splice(downvotedBy.indexOf(username), 1);
+          } 
+
+          upvotedBy.push(username);
+        }
+
+        break;
+      case "downvote": 
+
+        if (!downvotedBy.includes(username)) {
+
+          if(upvotedBy.includes(username)) {
+            upvotedBy.splice(upvotedBy.indexOf(username), 1);
+          }
+
+          downvotedBy.push(username);
+        } 
+
+        break;
+      default: 
+        console.log("Error: Invalid vote type")
+    }
+
+    response.body = {
+    };
+
+    response.body.comment = targetComment;
   }
 
   return response;
