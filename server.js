@@ -33,7 +33,8 @@ const routes = {
     'POST': createComment
   },
   '/comments/:id': {
-    'PUT': updateComment
+    'PUT': updateComment,
+    'DELETE': deleteComment
   },
   '/comments/:id/upvote': {
   },
@@ -311,6 +312,37 @@ function updateComment(url, request) {
   } else {
       database.comments[requestComment.id] = requestComment;
       response.status = 200;
+  }
+
+  return response;
+}
+
+function deleteComment(url, request) {
+
+  const id = Number(url.split('/').filter(segment => segment)[1]);
+
+  const response = {};
+
+  if (
+    !id ||
+    database.comments[id] === undefined
+  ) {
+    response.status = 404;
+  } else {
+
+    response.status = 204;
+
+    database.comments[id] = null;
+
+    const commentIds = database.articles[id].commentIds;
+    const commentIdIndex = commentIds.findIndex(commentId => commentId === id);
+
+    commentIds.splice(commentIdIndex, 1);
+
+    const commentIdsI = database.users["user"].commentIds;
+    const commentIdIndexI = commentIdsI.findIndex(commentId => commentId === id);
+
+    commentIdsI.splice(commentIdIndexI, 1);
   }
 
   return response;
